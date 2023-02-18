@@ -1,6 +1,9 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
+using RadencyTestTasks.Task1.Constraints;
+using RadencyTestTasks.Task1.Domain.Models;
 using RadencyTestTasks.Task1.Requests;
+using RadencyTestTasks.Task1.Responses;
 
 namespace RadencyTestTasks.Task1.Helpers;
 
@@ -26,5 +29,27 @@ public static class ParseHelper
         return transaction;
     }
 
-    public static bool ValidateRow(string row, Regex regex) => regex.IsMatch(row);
+    public static List<PaymentTransactionResponse> MapToPaymentTransactionResponse(this FileContentResponse source)
+    {
+        return source.ValidTransactions
+            .GroupBy(t => string.Concat(t.Address.TakeWhile(x => x != ',')))
+            .Select(t => new PaymentTransactionResponse
+            {
+                City = t.Key,
+                Services = t.DistinctBy(t => t.Service).Select(x => new Service
+                {
+                    Name = x.Service,
+                    Payers = t.Where(y => y.Service == x.Service).Select(z => new Payer
+                    {
+                        Name = $"{z.FirstName} {z.LastName}",
+                        Payment = z.Payment,
+                        Date = z.Date,
+                        AccountNumber = z.AccountNumber
+                    }).ToList(),
+                    Total = t.Where(t => x.Service == t.Service).Sum(t => x.Payment)
+                }).ToList(),
+                Total = t.Sum(t => t.Payment)
+            }).ToList();
+    }
+    public static bool ValidateRow(string row) => GlobalConstraints.RowValidationRegex.IsMatch(row);
 }
