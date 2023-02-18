@@ -1,18 +1,18 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using RadencyTestTasks.Task1.Global;
 using RadencyTestTasks.Task1.Helpers;
-using RadencyTestTasks.Task1.Interfaces;
 using RadencyTestTasks.Task1.Requests;
 using RadencyTestTasks.Task1.Responses;
 
-namespace RadencyTestTasks.Task1.Strategies;
+namespace RadencyTestTasks.Task1.Domain.Models;
 
-public class TxtStrategy : IStrategy
+public class TxtFileDetails : FileDetails
 {
-    public async Task<FileContentResponse> ReadDataAsync(string filename)
+    public override async Task<FileContentResponse> ReadAsync()
     {
-        if (!File.Exists(filename)) throw new FileNotFoundException();
+        if (!File.Exists(FullFilePath)) throw new FileNotFoundException();
 
-        var data = await File.ReadAllLinesAsync(filename);
+        var data = await File.ReadAllLinesAsync(FullFilePath);
         var validTransactions = new List<PaymentTransactionRequest>();
         int invalidLinesCount = 0;
 
@@ -27,9 +27,18 @@ public class TxtStrategy : IStrategy
             else
             {
                 invalidLinesCount++;
+                GlobalVariables.FoundErrors++;
             }
-        }
 
+            GlobalVariables.ParsedLines++;
+        }
+        GlobalVariables.ParsedFiles++;
+        
         return new FileContentResponse(validTransactions, invalidLinesCount);
+    }
+
+    public TxtFileDetails(string fileName, string fullFilePath) 
+        : base(fileName, fullFilePath)
+    {
     }
 }

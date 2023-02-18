@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text.RegularExpressions;
-using RadencyTestTasks.Task1.Constraints;
 using RadencyTestTasks.Task1.Domain.Models;
+using RadencyTestTasks.Task1.Global;
 using RadencyTestTasks.Task1.Requests;
 using RadencyTestTasks.Task1.Responses;
 
@@ -51,5 +51,5 @@ public static class ParseHelper
                 Total = t.Sum(t => t.Payment)
             }).ToList();
     }
-    public static bool ValidateRow(string row) => GlobalConstraints.RowValidationRegex.IsMatch(row);
+    public static bool ValidateRow(string row) => GlobalVariables.ValidationRegex.IsMatch(row);
 }

@@ -1,23 +1,22 @@
-﻿using System.Text.RegularExpressions;
+﻿using RadencyTestTasks.Task1.Global;
 using RadencyTestTasks.Task1.Helpers;
-using RadencyTestTasks.Task1.Interfaces;
 using RadencyTestTasks.Task1.Requests;
 using RadencyTestTasks.Task1.Responses;
 
-namespace RadencyTestTasks.Task1.Strategies;
+namespace RadencyTestTasks.Task1.Domain.Models;
 
-public class CsvStrategy : IStrategy
+public class CsvFileDetails : FileDetails
 {
-    public async Task<FileContentResponse> ReadDataAsync(string filename)
+    public override async Task<FileContentResponse> ReadAsync()
     {
-        if (!File.Exists(filename)) throw new FileNotFoundException();
+        if (!File.Exists(FullFilePath)) throw new FileNotFoundException();
 
-        var data = await File.ReadAllLinesAsync(filename);
+        var data = await File.ReadAllLinesAsync(FullFilePath);
         var validTransactions = new List<PaymentTransactionRequest>();
         int invalidLinesCount = 0;
         
         data = data.Skip(1)
-                   .ToArray();
+            .ToArray();
 
         foreach (var row in data)
         {
@@ -29,9 +28,17 @@ public class CsvStrategy : IStrategy
             else
             {
                 invalidLinesCount++;
+                GlobalVariables.FoundErrors++;
             }
+            GlobalVariables.ParsedLines++;
         }
-
+        GlobalVariables.ParsedFiles++;
+        
         return new FileContentResponse(validTransactions, invalidLinesCount);
+    }
+
+    public CsvFileDetails(string fileName, string fullFilePath) 
+        : base(fileName, fullFilePath)
+    {
     }
 }
