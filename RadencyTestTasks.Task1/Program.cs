@@ -12,4 +12,4 @@ using RadencyTestTasks.Task1.Jobs;
 using RadencyTestTasks.Task1.Presentation;
 using RadencyTestTasks.Task1.Settings;
 
-UserInterface.Menu();
+await UserInterface.Menu();

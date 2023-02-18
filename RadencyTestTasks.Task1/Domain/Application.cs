@@ -58,7 +58,7 @@ public class Application : IApplication
     private async Task FileCreated(object s, FileSystemEventArgs e)
     {
         Thread.Sleep(500);
-        await ReadSingleFileAsync(e.FullPath);
+        await ProcessSingleFileAsync(e.FullPath);
     } 
 
     private void ConfigureWatcher()
@@ -69,7 +69,7 @@ public class Application : IApplication
         _fileSystemWatcher.Created += async (s, e) => await FileCreated(s, e);
     }
 
-    private async Task ReadSingleFileAsync(string filePath)
+    private async Task ProcessSingleFileAsync(string filePath)
     {
         var fileName = Path.GetFileName(filePath);
         var fileExtension = Path.GetExtension(fileName);
@@ -85,11 +85,11 @@ public class Application : IApplication
                 break;
         }
 
-        var result = _entries.Last().MapToPaymentTransactionResponse();
-        await _fileSaveService.SaveFileResultAsync(result, _fileSettings.OutputDirectory);
+        var response = _entries.Last().MapToPaymentTransactionResponse();
+        await _fileSaveService.SaveFileResultAsync(response, _fileSettings.OutputDirectory);
     }
 
-    private void ReadAllFiles()
+    private void ProcessAllFiles()
     {
         var files = Directory
             .GetFiles(_fileSettings.SourceDirectory, "*.txt", SearchOption.TopDirectoryOnly)
@@ -148,12 +148,14 @@ public class Application : IApplication
             Environment.Exit(-1);
         }
 
-        ReadAllFiles();
+        ProcessAllFiles();
+        foreach (var item in _entries)
+        {
+            var response = item.MapToPaymentTransactionResponse();
+            await _fileSaveService.SaveFileResultAsync(response, _fileSettings.OutputDirectory);
+        }
         ConfigureWatcher();
         await ConfigureQuartzAsync();
-        while (true)
-        {
-            
-        }
+        while (true) { }
     }
 }

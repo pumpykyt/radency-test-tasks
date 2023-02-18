@@ -5,8 +5,8 @@ namespace RadencyTestTasks.Task1.Domain.Models;
 
 public abstract class FileDetails
 {
-    public string FileName { get; set; }
-    public string FullFilePath { get; set; }
+    protected string FileName { get; }
+    protected string FullFilePath { get; }
 
     protected FileDetails(string fileName, string fullFilePath)
     {

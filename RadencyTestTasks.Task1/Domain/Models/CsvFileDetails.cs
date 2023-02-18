@@ -29,6 +29,7 @@ public class CsvFileDetails : FileDetails
             {
                 invalidLinesCount++;
                 GlobalVariables.FoundErrors++;
+                GlobalVariables.InvalidFileNames.Add(FileName);
             }
             GlobalVariables.ParsedLines++;
         }
